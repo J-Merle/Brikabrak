@@ -22,9 +22,9 @@ project "Brikabrak"
     "./%{prj.name}/vendor/SDL2/include"
   }
 
-  
 
-  libdirs { 
+
+  libdirs {
     "%{prj.name}/vendor/SDL2/lib"
   }
 
