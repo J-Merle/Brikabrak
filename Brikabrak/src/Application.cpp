@@ -3,6 +3,7 @@
 #include "Sprite.h"
 #include "Tile.h"
 #include "Brikabrak.h"
+#include "DisplayManager.h"
 
 #define FPS 60
 
@@ -15,6 +16,10 @@ Application::~Application() {
 }
 
 void Application::Run() {
+
+  DisplayManager* displayManager = new DisplayManager();
+  displayManager->Init(this->renderer);
+
   Tile* tile1 = new Tile(0, 0, SDL_FLIP_NONE);
   Tile* tile2 = new Tile(1, 0, SDL_FLIP_NONE);
   Tile* tile3 = new Tile(0, 0, SDL_FLIP_HORIZONTAL);
@@ -24,17 +29,8 @@ void Application::Run() {
   sprite->AddTile(*tile2);
   sprite->AddTile(*tile3);
 
-  SDL_Surface *surface = nullptr;
-  SDL_Texture *texture = nullptr;
-
-  surface = SDL_LoadBMP("Brikabrak/assets/bat.bmp");
-  if(surface == nullptr) {
-    SDL_Log("Unable to load bmp: %s", SDL_GetError());
-  }
-  texture = SDL_CreateTextureFromSurface(this->renderer, surface);
-  SDL_FreeSurface(surface);
-
   Uint32 startTime, endTime;
+  int x = 0;
 
   SDL_Event event;
   while(1) {
@@ -43,31 +39,16 @@ void Application::Run() {
     if(event.type == SDL_QUIT) {
       break ;
     }
-
-
-    SDL_Rect source;
-    source.x = 0;
-    source.y = 0;
-    source.w = TILE_SIZE;
-    source.h = TILE_SIZE;
-
-    SDL_Rect dest;
-    dest.x = 0;
-    dest.y = 0;
-    dest.w = TILE_SIZE;
-    dest.h = TILE_SIZE;
+    if(event.type == SDL_KEYDOWN) {
+      switch(event.key.keysym.sym) {
+        case SDLK_LEFT: x -= 7; break;
+        case SDLK_RIGHT: x += 7; break;
+      }
+    }
 
     SDL_RenderClear(renderer);
+    displayManager->DisplaySprite(*sprite, x, 0);
 
-    int i = 0;
-    for(auto const& tile: sprite->tiles) {
-      source.x = tile.tileId * TILE_SIZE;
-      dest.x = i * TILE_SIZE;
-      SDL_RenderCopyEx(renderer, texture, &source, &dest, tile.angle, nullptr, tile.flip);
-
-
-      i++;
-    }
     SDL_RenderPresent(renderer);
 
     endTime = SDL_GetTicks();
